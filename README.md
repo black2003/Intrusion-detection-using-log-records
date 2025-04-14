@@ -1,4 +1,4 @@
-# Sql-Injection-Detection
+# Intrusion-detection-using-log-records
 
 ## This project presents a machine learning-based web application designed to detect IoT Intrusion **attacks** by analyzing **log records**.
 
