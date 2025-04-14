@@ -1,49 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0"/>
-  <title>Starter Template - Materialize</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Intrusion Detection</title>
 
-  <!-- CSS  -->
+  <!-- Google Fonts & Icons -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <link href="./static/css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection"/>
-  <link href="./static/css2/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <!-- Materialize CSS -->
+  <link href="./static/css/materialize.css" rel="stylesheet"/>
+  <link href="./static/css2/style.css" rel="stylesheet"/>
 
-  <!-- Custom CSS -->
   <style>
-    /* Custom styles here */
+    :root {
+      --bg-color-light: #f5f5f5;
+      --bg-color-dark: #121212;
+      --text-color-light: #333;
+      --text-color-dark: #f5f5f5;
+      --card-bg-light: #ffffff;
+      --card-bg-dark: #1e1e1e;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      transition: background-color 0.5s, color 0.5s;
+      background: linear-gradient(135deg, #e3f2fd, #fff3e0);
+      background-size: 400% 400%;
+      animation: backgroundShift 15s ease infinite;
+    }
+
+    @keyframes backgroundShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    body.dark-mode {
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: var(--text-color-dark);
+    }
+
+    .card-effect {
+      background-color: var(--card-bg-light);
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 25px;
+      transition: background-color 0.3s, box-shadow 0.3s;
+    }
+
+    body.dark-mode .card-effect {
+      background-color: var(--card-bg-dark);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+
     .upload-btn {
       background-color: orange;
       border-radius: 4px;
       color: white;
-      padding: 10px 20px;
       transition: background-color 0.3s ease;
     }
 
     .upload-btn:hover {
       background-color: #ff9800;
     }
+
+    .header.center.orange-text:hover {
+      transform: scale(1.05);
+      color: #fb8c00;
+    }
+
+    .toggle-switch {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+    }
+
+    #spinner {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      height: 100vh;
+      width: 100vw;
+      background-color: rgba(255,255,255,0.7);
+      backdrop-filter: blur(2px);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .spinner-border {
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid orange;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg);}
+      100% { transform: rotate(360deg);}
+    }
+
+    @media screen and (max-width: 600px) {
+      h1.header {
+        font-size: 2rem;
+      }
+    }
   </style>
 </head>
 
 <body>
-  <nav class="light-blue lighten-1" role="navigation">
-    <div class="nav-wrapper container">
-      <a id="logo-container" href="#" class="brand-logo">Conscious Intelligence</a>
-      <ul class="right hide-on-med-and-down">
-        <li><a href="#">Some Link</a></li>
-      </ul>
+  <!-- Dark Mode Toggle -->
+<div class="toggle-switch">
+  <label style="color: black;">
+    <input type="checkbox" id="darkModeToggle">
+    <span class="lever"></span>
+    Dark Mode
+  </label>
+</div>
 
-      <ul id="nav-mobile" class="sidenav">
-        <li><a href="#">Navbar Link</a></li>
-      </ul>
+  <!-- Loading Spinner -->
+  <div id="spinner">
+    <div class="spinner-border"></div>
+  </div>
+
+  <!-- Nav -->
+  <nav class="light-blue lighten-1">
+    <div class="nav-wrapper container">
+      <a href="#" class="brand-logo">Conscious Intelligence</a>
       <a href="#" data-target="nav-mobile" class="sidenav-trigger"><i class="material-icons">menu</i></a>
     </div>
   </nav>
 
+  <!-- Main Content -->
   <div class="section no-pad-bot" id="index-banner">
-    <div class="container">
+    <div class="container card-effect z-depth-2">
       <br><br>
       <h1 class="header center orange-text">Intrusion Detection on Log Records</h1>
       <div class="row center">
@@ -51,10 +143,10 @@
       </div>
 
       <div class="row">
-        <form action='/predict' method="post" class="col s12" enctype="multipart/form-data">
+        <form action='/predict' method="post" class="col s12" enctype="multipart/form-data" onsubmit="showSpinner()">
           <div class="row">
             <div class="file-field input-field">
-              <div class="btn upload-btn waves-effect waves-light">
+              <div class="btn upload-btn">
                 <span>Upload CSV</span>
                 <input type="file" id="csv-file" name="csv-file" accept=".csv" onchange="updatePlaceholder()">
               </div>
@@ -75,47 +167,78 @@
     </div>
   </div>
 
-  <script>
-    function updatePlaceholder() {
-      var input = document.getElementById('csv-file');
-      var fileName = input.files[0].name;
-      var placeholder = document.getElementById('csv-file-path');
-      placeholder.setAttribute('placeholder', fileName);
-    }
-  </script>
-<div class="col l3 s12">
-  <h5 class="white-text">Settings</h5>
-  <ul>
-    <li><a class="white-text" href="#!">Link 1</a></li>
-    <li><a class="white-text" href="#!">Link 2</a></li>
-    <li><a class="white-text" href="#!">Link 3</a></li>
-    <li><a class="white-text" href="#!">Link 4</a></li>
-  </ul>
-</div>
-<div class="col l3 s12">
-  <h5 class="white-text">Connect</h5>
-  <ul>
-    <li><a class="white-text" href="#!">Link 1</a></li>
-    <li><a class="white-text" href="#!">Link 2</a></li>
-    <li><a class="white-text" href="#!">Link 3</a></li>
-    <li><a class="white-text" href="#!">Link 4</a></li>
-  </ul>
-</div>
-</div>
-</div>
-<div class="footer-copyright">
-<div class="container">
-Made by <a class="orange-text text-lighten-3" href="http://materializecss.com">Materialize</a>
-</div>
-</div>
+  <!-- Footer -->
+<footer class="page-footer" style="background-color: #263238;">
+  <div class="container">
+    <div class="row">
+      <!-- Settings -->
+      <div class="col l6 s12">
+        <h5 class="white-text">Settings</h5>
+        <ul>
+          <li><a class="white-text" href="#!">Profile Settings</a></li>
+          <li><a class="white-text" href="#!">Theme Preferences</a></li>
+          <li><a class="white-text" href="#!">Security</a></li>
+          <li><a class="white-text" href="#!">Notifications</a></li>
+        </ul>
+      </div>
+
+      <!-- Connect -->
+      <div class="col l6 s12">
+        <h5 class="white-text">Connect</h5>
+        <ul>
+          <li>
+            <a class="white-text" href="http://github.com/black2003" target="_blank">
+              Author: Arghya Paul
+            </a>
+          </li>
+          <li>
+            <a class="white-text" href="http://github.com/StuckInThisMind" target="_blank">
+              Collaborator: Aaradhya Badal
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-copyright">
+    <div class="container center-align">
+      Made by <a class="orange-text text-lighten-3" href="http://materializecss.com">Materialize</a>
+    </div>
+  </div>
 </footer>
 
 
-<!--  Scripts-->
-<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-<script src=".js/materialize.js"></script>
-<script src="js/init.js"></script>
+  <!-- Scripts -->
+  <script>
+    function updatePlaceholder() {
+      const input = document.getElementById('csv-file');
+      const fileName = input.files[0]?.name || '';
+      const placeholder = document.getElementById('csv-file-path');
+      placeholder.setAttribute('placeholder', fileName);
+    }
 
-  <!-- Footer Section -->
+    function showSpinner() {
+      document.getElementById('spinner').style.display = 'flex';
+    }
+
+    // Dark mode toggle
+    const toggle = document.getElementById('darkModeToggle');
+    toggle.addEventListener('change', () => {
+      document.body.classList.toggle('dark-mode');
+      localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+    });
+
+    // Restore saved theme
+    window.onload = function() {
+      if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-mode');
+        toggle.checked = true;
+      }
+    };
+  </script>
+
+  <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="./js/materialize.js"></script>
 </body>
 </html>
